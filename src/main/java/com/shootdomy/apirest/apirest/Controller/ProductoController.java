@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shootdomy.apirest.apirest.Entities.Producto;
-import com.shootdomy.apirest.apirest.Repository.ProductoRepository;
+import com.shootdomy.apirest.apirest.Services.ProductoService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,41 +20,36 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("/productos")
 public class ProductoController {
   @Autowired
-  private ProductoRepository productoRepository;
+  private ProductoService productoService;
 
   @GetMapping()
   public List<Producto> obtenerTodosProductos() {
-    return productoRepository.findAll();
+    return productoService.obtenerProductos();
   }
 
   @GetMapping("/{id}")
   public Producto obtenerProductosPorId(@PathVariable Long id) {
-    return productoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("No se encontro el producto con id " + id));
+    return productoService.obtenerProducto(id);
   }
 
   @PostMapping()
   public Producto crearProducto(@RequestBody Producto producto) {
-    return productoRepository.save(producto);
+    return productoService.crearProducto(producto);
   }
 
   @PutMapping("/{id}")
   public Producto actualizarProducto(@PathVariable Long id, @RequestBody Producto producto) {
-    Producto prod = productoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("No se encontro el producto con id " + id));
+    Producto prod = productoService.obtenerProducto(id);
 
     prod.setNombre(producto.getNombre());
     prod.setPrecio(producto.getPrecio());
 
-    return productoRepository.save(prod);
+    return productoService.actualizarProducto(prod);
   }
 
   @DeleteMapping("/{id}")
   public String eliminarProducto(@PathVariable Long id) {
-    Producto producto = productoRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("No se encontro el producto con id " + id));
-
-    productoRepository.delete(producto);
+    productoService.eliminarProducto(id);
 
     return "Producto eliminado con exito";
   }
